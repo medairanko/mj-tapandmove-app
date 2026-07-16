@@ -1,24 +1,46 @@
 {
   "expo": {
-    "name": "mj-tapandmove-app",
+    "name": "MJ tap&move",
     "slug": "mj-tapandmove-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0d1420",
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "kr.co.mjsmart.tapandmove",
+      "versionCode": 1,
+      "permissions": [
+        "INTERNET"
+      ],
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "monochromeImage": "./assets/android-icon-monochrome.png",
+        "backgroundColor": "#2ECC9A"
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#0d1420"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f4bacf30-5989-431e-8c0b-2f866d97547b"
+      }
+    },
+    "owner": "persianmeda"
   }
 }
