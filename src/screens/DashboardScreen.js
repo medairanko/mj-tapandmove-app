@@ -102,7 +102,7 @@ export default function DashboardScreen({ serverAddress, token, onLogout, colors
       <TouchableOpacity
         style={styles.hamburgerButton}
         onPress={() => setSettingsOpen(true)}
-        hitSlop={8}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
         <Text style={styles.hamburgerIcon}>☰</Text>
       </TouchableOpacity>
@@ -167,6 +167,11 @@ function createStyles(colors) {
       backgroundColor: 'rgba(20,36,58,0.72)',
       alignItems: 'center',
       justifyContent: 'center',
+      // Android's WebView renders in its own hardware-composited surface and can
+      // paint over sibling views that only rely on JSX/render order for stacking.
+      // elevation (Android) + zIndex (iOS/RN layout) force this button above it.
+      zIndex: 20,
+      elevation: 20,
     },
     hamburgerIcon: {
       color: '#e8eaed',
