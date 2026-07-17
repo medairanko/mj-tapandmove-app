@@ -36,10 +36,9 @@ export const BRAND = {
 // Change this if the dashboard's url_path or default view ever changes.
 export const DASHBOARD_PATH = '/mj-panel/home';
 
-// TODO: replace with the real Kakao Open Chat links before shipping to users.
 export const KAKAO = {
-  contactUrl: 'https://open.kakao.com/o/REPLACE_WITH_MJ_CONTACT_ID',
-  adminUrl: 'https://open.kakao.com/o/REPLACE_WITH_ADMIN_ID',
+  contactUrl: 'https://open.kakao.com/o/medapersian77',
+  adminUrl: 'https://open.kakao.com/o/medapersian77',
 };
 
 export const STORAGE_KEYS = {
