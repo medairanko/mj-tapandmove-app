@@ -37,7 +37,7 @@ export const BRAND = {
 export const DASHBOARD_PATH = '/mj-panel/home';
 
 export const KAKAO = {
-  link: 'https://open.kakao.com/o/s/mjsmart.co.kr',
+  link: 'https://open.kakao.com/o/sun68uEi',
 };
 
 export const STORAGE_KEYS = {
