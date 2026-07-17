@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { WebView } from 'react-native-webview';
-import { COLORS, DASHBOARD_PATH } from '../config';
+import { DASHBOARD_PATH } from '../config';
+import SettingsScreen from './SettingsScreen';
 
 function buildDashboardUrl(rawAddress) {
   // Strip any protocol/trailing slashes the user may have typed, then rebuild.
@@ -17,12 +18,14 @@ function buildDashboardUrl(rawAddress) {
   return `https://${host}${DASHBOARD_PATH}`;
 }
 
-export default function DashboardScreen({ serverAddress, token, onLogout }) {
+export default function DashboardScreen({ serverAddress, token, onLogout, colors, theme, onToggleTheme }) {
   const webviewRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const url = useMemo(() => buildDashboardUrl(serverAddress), [serverAddress]);
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   // Best-effort: if a Long-Lived Access Token was provided, send it as a Bearer
   // header on the initial request. NOTE: Home Assistant's frontend (Lovelace UI)
@@ -70,7 +73,7 @@ export default function DashboardScreen({ serverAddress, token, onLogout }) {
 
       {loading && !loadError && (
         <View style={styles.overlay} pointerEvents="none">
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       )}
 
@@ -96,59 +99,79 @@ export default function DashboardScreen({ serverAddress, token, onLogout }) {
         </View>
       )}
 
-      {/* Small, unobtrusive hit-area (top-left corner) to reach "change server /
-          logout" without putting a permanent bar on top of the fullscreen dashboard. */}
       <TouchableOpacity
-        style={styles.hiddenCorner}
-        onLongPress={handleLogoutPress}
-        delayLongPress={1500}
+        style={styles.hamburgerButton}
+        onPress={() => setSettingsOpen(true)}
+        hitSlop={8}
+      >
+        <Text style={styles.hamburgerIcon}>☰</Text>
+      </TouchableOpacity>
+
+      <SettingsScreen
+        visible={settingsOpen}
+        colors={colors}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
+        onLogout={onLogout}
+        onClose={() => setSettingsOpen(false)}
       />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: COLORS.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  errorText: {
-    color: COLORS.text,
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 20,
-  },
-  retryButton: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 999,
-    paddingHorizontal: 28,
-    paddingVertical: 12,
-  },
-  retryButtonText: {
-    color: '#0d1420',
-    fontWeight: '800',
-  },
-  changeServerLink: {
-    marginTop: 16,
-  },
-  changeServerText: {
-    color: COLORS.textMuted,
-    fontSize: 13,
-    textDecorationLine: 'underline',
-  },
-  hiddenCorner: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 56,
-    height: 56,
-  },
-});
+function createStyles(colors) {
+  return StyleSheet.create({
+    flex: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    overlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+    },
+    errorText: {
+      color: colors.text,
+      fontSize: 14,
+      textAlign: 'center',
+      marginBottom: 20,
+      lineHeight: 20,
+    },
+    retryButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 999,
+      paddingHorizontal: 28,
+      paddingVertical: 12,
+    },
+    retryButtonText: {
+      color: '#0d1420',
+      fontWeight: '800',
+    },
+    changeServerLink: {
+      marginTop: 16,
+    },
+    changeServerText: {
+      color: colors.textMuted,
+      fontSize: 13,
+      textDecorationLine: 'underline',
+    },
+    hamburgerButton: {
+      position: 'absolute',
+      top: 14,
+      left: 14,
+      width: 40,
+      height: 40,
+      borderRadius: 12,
+      backgroundColor: 'rgba(20,36,58,0.72)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    hamburgerIcon: {
+      color: '#e8eaed',
+      fontSize: 20,
+      fontWeight: '700',
+    },
+  });
+}

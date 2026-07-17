@@ -17,3 +17,12 @@ export async function saveConnection(serverAddress, token) {
 export async function clearConnection() {
   await AsyncStorage.multiRemove([STORAGE_KEYS.serverAddress, STORAGE_KEYS.token]);
 }
+
+export async function loadSavedTheme() {
+  const theme = await AsyncStorage.getItem(STORAGE_KEYS.theme);
+  return theme === 'light' ? 'light' : 'dark';
+}
+
+export async function saveTheme(theme) {
+  await AsyncStorage.setItem(STORAGE_KEYS.theme, theme);
+}

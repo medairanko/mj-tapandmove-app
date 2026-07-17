@@ -1,8 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
-import { COLORS } from './src/config';
-import { loadSavedConnection, saveConnection, clearConnection } from './src/storage';
+import { getColors } from './src/config';
+import {
+  loadSavedConnection,
+  saveConnection,
+  clearConnection,
+  loadSavedTheme,
+  saveTheme,
+} from './src/storage';
 import LoginScreen from './src/screens/LoginScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
 
@@ -11,14 +17,18 @@ SplashScreen.preventAutoHideAsync();
 export default function App() {
   const [ready, setReady] = useState(false);
   const [connection, setConnection] = useState({ serverAddress: null, token: null });
+  const [theme, setTheme] = useState('dark');
+
+  const colors = useMemo(() => getColors(theme), [theme]);
 
   useEffect(() => {
     (async () => {
       try {
-        const saved = await loadSavedConnection();
+        const [saved, savedTheme] = await Promise.all([loadSavedConnection(), loadSavedTheme()]);
         if (saved.serverAddress) {
           setConnection(saved);
         }
+        setTheme(savedTheme);
       } finally {
         setReady(true);
       }
@@ -41,8 +51,14 @@ export default function App() {
     setConnection({ serverAddress: null, token: null });
   }
 
+  async function handleToggleTheme() {
+    const next = theme === 'light' ? 'dark' : 'light';
+    setTheme(next);
+    await saveTheme(next);
+  }
+
   if (!ready) {
-    return <View style={styles.blank} />;
+    return <View style={[styles.blank, { backgroundColor: colors.background }]} />;
   }
 
   if (connection.serverAddress) {
@@ -51,6 +67,9 @@ export default function App() {
         serverAddress={connection.serverAddress}
         token={connection.token}
         onLogout={handleLogout}
+        colors={colors}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
       />
     );
   }
@@ -60,6 +79,7 @@ export default function App() {
       onConnect={handleConnect}
       initialAddress={connection.serverAddress}
       initialToken={connection.token}
+      colors={colors}
     />
   );
 }
@@ -67,6 +87,5 @@ export default function App() {
 const styles = StyleSheet.create({
   blank: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
 });

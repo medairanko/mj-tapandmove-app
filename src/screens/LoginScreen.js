@@ -10,12 +10,13 @@ import {
   View,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { COLORS, BRAND } from '../config';
+import { BRAND } from '../config';
 
-export default function LoginScreen({ onConnect, initialAddress, initialToken }) {
+export default function LoginScreen({ onConnect, initialAddress, initialToken, colors }) {
   const [serverAddress, setServerAddress] = useState(initialAddress || '');
   const [token, setToken] = useState(initialToken || '');
   const [error, setError] = useState('');
+  const styles = createStyles(colors);
 
   function handleConnect() {
     const trimmed = serverAddress.trim();
@@ -49,7 +50,7 @@ export default function LoginScreen({ onConnect, initialAddress, initialToken })
           <TextInput
             style={styles.input}
             placeholder="farm.mjsmart.co.kr"
-            placeholderTextColor={COLORS.textMuted}
+            placeholderTextColor={colors.textMuted}
             value={serverAddress}
             onChangeText={setServerAddress}
             autoCapitalize="none"
@@ -61,7 +62,7 @@ export default function LoginScreen({ onConnect, initialAddress, initialToken })
           <TextInput
             style={styles.input}
             placeholder="Long-Lived Access Token"
-            placeholderTextColor={COLORS.textMuted}
+            placeholderTextColor={colors.textMuted}
             value={token}
             onChangeText={setToken}
             autoCapitalize="none"
@@ -88,82 +89,84 @@ export default function LoginScreen({ onConnect, initialAddress, initialToken })
   );
 }
 
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  logo: {
-    width: 88,
-    height: 88,
-    borderRadius: 26,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  logoEmoji: {
-    fontSize: 40,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: COLORS.text,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: COLORS.textMuted,
-    marginTop: 4,
-    marginBottom: 32,
-  },
-  form: {
-    width: '100%',
-    maxWidth: 360,
-  },
-  label: {
-    color: COLORS.textMuted,
-    fontSize: 13,
-    marginBottom: 6,
-    marginTop: 14,
-  },
-  input: {
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    color: COLORS.text,
-    fontSize: 15,
-  },
-  error: {
-    color: '#ff6b6b',
-    marginTop: 10,
-    fontSize: 13,
-  },
-  button: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 999,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 24,
-  },
-  buttonText: {
-    color: '#0d1420',
-    fontWeight: '800',
-    fontSize: 15,
-  },
-  help: {
-    color: COLORS.textMuted,
-    fontSize: 12,
-    lineHeight: 18,
-    marginTop: 24,
-    textAlign: 'center',
-  },
-});
+function createStyles(colors) {
+  return StyleSheet.create({
+    flex: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+    },
+    logo: {
+      width: 88,
+      height: 88,
+      borderRadius: 26,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 16,
+    },
+    logoEmoji: {
+      fontSize: 40,
+    },
+    title: {
+      fontSize: 26,
+      fontWeight: '800',
+      color: colors.text,
+    },
+    subtitle: {
+      fontSize: 14,
+      color: colors.textMuted,
+      marginTop: 4,
+      marginBottom: 32,
+    },
+    form: {
+      width: '100%',
+      maxWidth: 360,
+    },
+    label: {
+      color: colors.textMuted,
+      fontSize: 13,
+      marginBottom: 6,
+      marginTop: 14,
+    },
+    input: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 12,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+      color: colors.text,
+      fontSize: 15,
+    },
+    error: {
+      color: '#ff6b6b',
+      marginTop: 10,
+      fontSize: 13,
+    },
+    button: {
+      backgroundColor: colors.primary,
+      borderRadius: 999,
+      paddingVertical: 14,
+      alignItems: 'center',
+      marginTop: 24,
+    },
+    buttonText: {
+      color: '#0d1420',
+      fontWeight: '800',
+      fontSize: 15,
+    },
+    help: {
+      color: colors.textMuted,
+      fontSize: 12,
+      lineHeight: 18,
+      marginTop: 24,
+      textAlign: 'center',
+    },
+  });
+}
