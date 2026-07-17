@@ -21,7 +21,7 @@ export default function LoginScreen({ onConnect, initialAddress, initialToken, c
   function handleConnect() {
     const trimmed = serverAddress.trim();
     if (!trimmed) {
-      setError('서버 주소를 입력하세요 / آدرس سرور را وارد کنید');
+      setError('서버 주소를 입력하세요');
       return;
     }
     setError('');
@@ -46,7 +46,7 @@ export default function LoginScreen({ onConnect, initialAddress, initialToken, c
         <Text style={styles.subtitle}>{BRAND.subtitle}</Text>
 
         <View style={styles.form}>
-          <Text style={styles.label}>서버 주소 / آدرس سرور</Text>
+          <Text style={styles.label}>서버 주소</Text>
           <TextInput
             style={styles.input}
             placeholder="farm.mjsmart.co.kr"
@@ -58,7 +58,7 @@ export default function LoginScreen({ onConnect, initialAddress, initialToken, c
             keyboardType="url"
           />
 
-          <Text style={styles.label}>Token (선택 / اختیاری)</Text>
+          <Text style={styles.label}>Token (선택)</Text>
           <TextInput
             style={styles.input}
             placeholder="Long-Lived Access Token"
@@ -73,15 +73,12 @@ export default function LoginScreen({ onConnect, initialAddress, initialToken, c
           {!!error && <Text style={styles.error}>{error}</Text>}
 
           <TouchableOpacity style={styles.button} onPress={handleConnect} activeOpacity={0.85}>
-            <Text style={styles.buttonText}>연결 / اتصال</Text>
+            <Text style={styles.buttonText}>연결</Text>
           </TouchableOpacity>
 
           <Text style={styles.help}>
             토큰이 없으면 비워두세요 — 다음 화면에서 평소처럼 아이디/비밀번호로 로그인하면
-            자동으로 로그인 상태가 저장됩니다.{'\n'}
-            {'\n'}
-            اگر توکن ندارید، خالی بگذارید — در صفحه‌ی بعد مثل همیشه با نام‌کاربری/رمز عبور
-            وارد شوید؛ ورود شما به‌صورت خودکار ذخیره می‌شود.
+            자동으로 로그인 상태가 저장됩니다.
           </Text>
         </View>
       </ScrollView>

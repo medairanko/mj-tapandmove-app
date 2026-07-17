@@ -40,11 +40,11 @@ export default function DashboardScreen({ serverAddress, token, onLogout, colors
 
   function handleLogoutPress() {
     Alert.alert(
-      '서버 변경 / تغییر سرور',
-      '저장된 서버 주소와 토큰을 지우고 로그인 화면으로 돌아갑니다.\nآدرس سرور و توکن ذخیره‌شده پاک می‌شود و به صفحه‌ی ورود برمی‌گردید.',
+      '서버 변경',
+      '저장된 서버 주소와 토큰을 지우고 로그인 화면으로 돌아갑니다.',
       [
-        { text: '취소 / لغو', style: 'cancel' },
-        { text: '확인 / تأیید', style: 'destructive', onPress: onLogout },
+        { text: '취소', style: 'cancel' },
+        { text: '확인', style: 'destructive', onPress: onLogout },
       ]
     );
   }
@@ -67,7 +67,7 @@ export default function DashboardScreen({ serverAddress, token, onLogout, colors
         onLoadEnd={() => setLoading(false)}
         onError={(syntheticEvent) => {
           setLoading(false);
-          setLoadError(syntheticEvent.nativeEvent.description || '연결 실패 / خطا در اتصال');
+          setLoadError(syntheticEvent.nativeEvent.description || '연결 실패');
         }}
       />
 
@@ -80,7 +80,7 @@ export default function DashboardScreen({ serverAddress, token, onLogout, colors
       {loadError && (
         <View style={styles.overlay}>
           <Text style={styles.errorText}>
-            연결할 수 없습니다 / اتصال برقرار نشد{'\n'}
+            연결할 수 없습니다{'\n'}
             {loadError}
           </Text>
           <TouchableOpacity
@@ -91,10 +91,10 @@ export default function DashboardScreen({ serverAddress, token, onLogout, colors
               webviewRef.current?.reload();
             }}
           >
-            <Text style={styles.retryButtonText}>다시 시도 / تلاش دوباره</Text>
+            <Text style={styles.retryButtonText}>다시 시도</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.changeServerLink} onPress={handleLogoutPress}>
-            <Text style={styles.changeServerText}>서버 변경 / تغییر سرور</Text>
+            <Text style={styles.changeServerText}>서버 변경</Text>
           </TouchableOpacity>
         </View>
       )}

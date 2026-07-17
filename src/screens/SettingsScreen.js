@@ -2,6 +2,7 @@ import {
   Alert,
   Linking,
   Modal,
+  ScrollView,
   StyleSheet,
   Switch,
   Text,
@@ -9,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { BRAND, KAKAO } from '../config';
+import KakaoIcon from '../components/KakaoIcon';
 
 async function openLink(url) {
   try {
@@ -20,10 +22,7 @@ async function openLink(url) {
   } catch (e) {
     // fall through to error alert
   }
-  Alert.alert(
-    '열 수 없습니다 / قابل باز شدن نیست',
-    '카카오톡 링크를 열 수 없습니다. 나중에 다시 시도해주세요.\nلینک کاکائو‌تاک باز نشد. لطفاً بعداً دوباره امتحان کنید.'
-  );
+  Alert.alert('열 수 없습니다', '카카오톡 링크를 열 수 없습니다. 나중에 다시 시도해주세요.');
 }
 
 export default function SettingsScreen({ visible, colors, theme, onToggleTheme, onLogout, onClose }) {
@@ -31,12 +30,12 @@ export default function SettingsScreen({ visible, colors, theme, onToggleTheme, 
 
   function handleLogoutPress() {
     Alert.alert(
-      '서버 변경 / تغییر سرور',
-      '저장된 서버 주소와 토큰을 지우고 로그인 화면으로 돌아갑니다.\nآدرس سرور و توکن ذخیره‌شده پاک می‌شود و به صفحه‌ی ورود برمی‌گردید.',
+      '서버 변경',
+      '저장된 서버 주소와 토큰을 지우고 로그인 화면으로 돌아갑니다.',
       [
-        { text: '취소 / لغو', style: 'cancel' },
+        { text: '취소', style: 'cancel' },
         {
-          text: '확인 / تأیید',
+          text: '확인',
           style: 'destructive',
           onPress: () => {
             onClose();
@@ -51,50 +50,45 @@ export default function SettingsScreen({ visible, colors, theme, onToggleTheme, 
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
-          <View style={styles.headerRow}>
-            <Text style={styles.title}>설정 / تنظیمات</Text>
-            <TouchableOpacity onPress={onClose} hitSlop={12}>
-              <Text style={styles.closeIcon}>✕</Text>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={styles.headerRow}>
+              <Text style={styles.title}>설정</Text>
+              <TouchableOpacity onPress={onClose} hitSlop={12}>
+                <Text style={styles.closeIcon}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.brand}>{BRAND.name}</Text>
+
+            <View style={styles.row}>
+              <Text style={styles.rowLabel}>
+                {theme === 'light' ? '밝은 테마' : '어두운 테마'}
+              </Text>
+              <Switch
+                value={theme === 'light'}
+                onValueChange={onToggleTheme}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor="#ffffff"
+              />
+            </View>
+
+            <TouchableOpacity
+              style={styles.kakaoButton}
+              activeOpacity={0.85}
+              onPress={() => openLink(KAKAO.link)}
+            >
+              <KakaoIcon size={20} color="#191919" />
+              <Text style={styles.kakaoButtonText}>카카오톡 문의</Text>
             </TouchableOpacity>
-          </View>
 
-          <Text style={styles.brand}>{BRAND.name}</Text>
-
-          <View style={styles.row}>
-            <Text style={styles.rowLabel}>
-              {theme === 'light' ? '밝은 테마 / تم روشن' : '어두운 테마 / تم تاریک'}
-            </Text>
-            <Switch
-              value={theme === 'light'}
-              onValueChange={onToggleTheme}
-              trackColor={{ false: colors.border, true: colors.primary }}
-              thumbColor="#ffffff"
-            />
-          </View>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            activeOpacity={0.85}
-            onPress={() => openLink(KAKAO.contactUrl)}
-          >
-            <Text style={styles.actionButtonText}>💬 Contact MJ (Kakao)</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionButton}
-            activeOpacity={0.85}
-            onPress={() => openLink(KAKAO.adminUrl)}
-          >
-            <Text style={styles.actionButtonText}>📩 Message Admin (Kakao DM)</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.logoutButton}
-            activeOpacity={0.85}
-            onPress={handleLogoutPress}
-          >
-            <Text style={styles.logoutButtonText}>로그아웃 / خروج</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              activeOpacity={0.85}
+              onPress={handleLogoutPress}
+            >
+              <Text style={styles.logoutButtonText}>로그아웃</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -153,19 +147,20 @@ function createStyles(colors) {
       fontSize: 15,
       fontWeight: '600',
     },
-    actionButton: {
-      backgroundColor: colors.background,
-      borderWidth: 1,
-      borderColor: colors.border,
+    kakaoButton: {
+      backgroundColor: '#FEE500',
       borderRadius: 14,
       paddingVertical: 14,
+      flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
       marginBottom: 14,
     },
-    actionButtonText: {
-      color: colors.text,
+    kakaoButtonText: {
+      color: '#191919',
       fontSize: 15,
-      fontWeight: '600',
+      fontWeight: '700',
     },
     logoutButton: {
       backgroundColor: '#ff6b6b',

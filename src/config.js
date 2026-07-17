@@ -29,7 +29,7 @@ export function getColors(theme) {
 
 export const BRAND = {
   name: 'MJ tap&move',
-  subtitle: '스마트 농장 시스템',
+  subtitle: '천안FVT유산양목장',
 };
 
 // The Home Assistant dashboard's url_path + default view (see mj-panel dashboard).
@@ -37,8 +37,7 @@ export const BRAND = {
 export const DASHBOARD_PATH = '/mj-panel/home';
 
 export const KAKAO = {
-  contactUrl: 'https://open.kakao.com/o/medapersian77',
-  adminUrl: 'https://open.kakao.com/o/medapersian77',
+  link: 'https://open.kakao.com/o/s/mjsmart.co.kr',
 };
 
 export const STORAGE_KEYS = {
