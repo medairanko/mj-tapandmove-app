@@ -5,10 +5,20 @@ import {
   useSpeechRecognitionEvent,
 } from 'expo-speech-recognition';
 import { getStates, callService } from '../../lib/haApi';
-import { matchVoiceCommand } from '../../lib/voiceIntent';
+import {
+  matchVoiceCommand,
+  normalize,
+  extractAction,
+  debugMatchCandidates,
+  getEligibleDomains,
+} from '../../lib/voiceIntent';
 
 const NO_SPEECH_TIMEOUT_MS = 5000;
 const MESSAGE_DISPLAY_MS = 1500;
+const RECOGNITION_LANG = 'ko-KR';
+
+// TEMPORARY diagnostics for the "always no match" issue — gated on __DEV__, not for production.
+const DEBUG_VOICE = __DEV__;
 
 function showToast(message) {
   if (Platform.OS === 'android') {
@@ -52,6 +62,12 @@ export function useVoiceCommand(serverAddress, token, refreshSignal) {
     // beyond the initial mount fetch.
   }, [refreshEntities, refreshSignal]);
 
+  useEffect(() => {
+    if (DEBUG_VOICE) {
+      console.log('[voice][debug] recognizer locale configured as:', RECOGNITION_LANG);
+    }
+  }, []);
+
   const resetToIdleAfterDelay = useCallback((delayMs = MESSAGE_DISPLAY_MS) => {
     messageTimer.current = setTimeout(() => {
       setState('idle');
@@ -61,6 +77,34 @@ export function useVoiceCommand(serverAddress, token, refreshSignal) {
 
   const runCommand = useCallback(
     async (recognizedText) => {
+      if (DEBUG_VOICE) {
+        console.log('[voice][debug] raw recognized text:', recognizedText);
+        const normalized = normalize(recognizedText);
+        const extracted = extractAction(normalized);
+        console.log(
+          '[voice][debug] normalized:',
+          normalized,
+          '| extracted action:',
+          extracted?.action ?? '(none found)',
+          '| remainder used for entity matching:',
+          extracted?.remainder ?? '(n/a — no action keyword matched)'
+        );
+        console.log('[voice][debug] entities available to match against:', entitiesRef.current.length);
+        if (extracted) {
+          const eligibleDomains = getEligibleDomains(extracted.action);
+          const domainFiltered = entitiesRef.current.filter((entity) => eligibleDomains.includes(entity.domain));
+          console.log('[voice][debug] eligible domains for action', extracted.action, ':', eligibleDomains);
+          console.log(
+            '[voice][debug] candidate pool after domain filter:',
+            domainFiltered.length,
+            '/',
+            entitiesRef.current.length
+          );
+          const candidates = debugMatchCandidates(extracted.remainder, domainFiltered, 3);
+          console.log('[voice][debug] top 3 candidate matches (domain-filtered):', JSON.stringify(candidates, null, 2));
+        }
+      }
+
       const match = matchVoiceCommand(recognizedText, entitiesRef.current);
 
       if (!match) {
@@ -91,17 +135,23 @@ export function useVoiceCommand(serverAddress, token, refreshSignal) {
     clearTimers();
     const transcript = event.results?.[0]?.transcript?.trim();
     if (!transcript) {
+      if (DEBUG_VOICE) {
+        console.log('[voice][debug] result event fired with empty/no transcript. Full event:', JSON.stringify(event));
+      }
       setState('idle');
       setMessage('');
       return;
     }
     setState('recognized');
-    setMessage(transcript);
+    setMessage(DEBUG_VOICE ? `인식된 텍스트: ${transcript}` : transcript);
     messageTimer.current = setTimeout(() => runCommand(transcript), MESSAGE_DISPLAY_MS);
   });
 
   useSpeechRecognitionEvent('error', (event) => {
     clearTimers();
+    if (DEBUG_VOICE) {
+      console.log('[voice][debug] error event:', event.error, '-', event.message);
+    }
     if (event.error === 'not-allowed') {
       promptForPermission();
       return;
@@ -149,8 +199,11 @@ export function useVoiceCommand(serverAddress, token, refreshSignal) {
     clearTimers();
     setMessage('');
     setState('listening');
+    if (DEBUG_VOICE) {
+      console.log('[voice][debug] ExpoSpeechRecognitionModule.start() called with lang:', RECOGNITION_LANG);
+    }
     ExpoSpeechRecognitionModule.start({
-      lang: 'ko-KR',
+      lang: RECOGNITION_LANG,
       interimResults: true,
       continuous: false,
     });
