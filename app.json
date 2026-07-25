@@ -34,6 +34,14 @@
           "resizeMode": "contain",
           "backgroundColor": "#0d1420"
         }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "음성 명령을 위해 마이크 접근 권한이 필요합니다.",
+          "speechRecognitionPermission": "음성 명령을 인식하기 위해 필요합니다.",
+          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
+        }
       ]
     ],
     "extra": {

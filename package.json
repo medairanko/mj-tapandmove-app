@@ -5,6 +5,8 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~57.0.6",
+    "expo-dev-client": "~57.0.9",
+    "expo-speech-recognition": "^56.0.1",
     "expo-splash-screen": "~57.0.4",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",

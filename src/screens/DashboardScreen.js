@@ -10,12 +10,12 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { WebView } from 'react-native-webview';
 import { DASHBOARD_PATH } from '../config';
+import { getBaseUrl } from '../../lib/haApi';
 import SettingsScreen from './SettingsScreen';
+import VoiceCommandButton from '../components/VoiceCommandButton';
 
 function buildDashboardUrl(rawAddress) {
-  // Strip any protocol/trailing slashes the user may have typed, then rebuild.
-  const host = rawAddress.trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '');
-  return `https://${host}${DASHBOARD_PATH}`;
+  return `${getBaseUrl(rawAddress)}${DASHBOARD_PATH}`;
 }
 
 export default function DashboardScreen({ serverAddress, token, onLogout, colors, theme, onToggleTheme }) {
@@ -23,6 +23,7 @@ export default function DashboardScreen({ serverAddress, token, onLogout, colors
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   const url = useMemo(() => buildDashboardUrl(serverAddress), [serverAddress]);
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -64,7 +65,11 @@ export default function DashboardScreen({ serverAddress, token, onLogout, colors
         cacheEnabled
         startInLoadingState={false}
         onLoadStart={() => setLoading(true)}
-        onLoadEnd={() => setLoading(false)}
+        onLoadEnd={() => {
+          setLoading(false);
+          // Also re-fetch the HA entity list voice commands match against.
+          setRefreshTick((tick) => tick + 1);
+        }}
         onError={(syntheticEvent) => {
           setLoading(false);
           setLoadError(syntheticEvent.nativeEvent.description || '연결 실패');
@@ -106,6 +111,13 @@ export default function DashboardScreen({ serverAddress, token, onLogout, colors
       >
         <Text style={styles.hamburgerIcon}>☰</Text>
       </TouchableOpacity>
+
+      <VoiceCommandButton
+        serverAddress={serverAddress}
+        token={token}
+        colors={colors}
+        refreshSignal={refreshTick}
+      />
 
       <SettingsScreen
         visible={settingsOpen}
