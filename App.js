@@ -8,9 +8,12 @@ import {
   clearConnection,
   loadSavedTheme,
   saveTheme,
+  shouldPromptForToken,
+  incrementTokenPromptDismissCount,
 } from './src/storage';
 import LoginScreen from './src/screens/LoginScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
+import TokenPromptModal from './src/components/TokenPromptModal';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -18,6 +21,7 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [connection, setConnection] = useState({ serverAddress: null, token: null });
   const [theme, setTheme] = useState('dark');
+  const [tokenPromptVisible, setTokenPromptVisible] = useState(false);
 
   const colors = useMemo(() => getColors(theme), [theme]);
 
@@ -27,6 +31,7 @@ export default function App() {
         const [saved, savedTheme] = await Promise.all([loadSavedConnection(), loadSavedTheme()]);
         if (saved.serverAddress) {
           setConnection(saved);
+          setTokenPromptVisible(await shouldPromptForToken(saved.serverAddress, saved.token));
         }
         setTheme(savedTheme);
       } finally {
@@ -57,20 +62,40 @@ export default function App() {
     await saveTheme(next);
   }
 
+  async function handleSaveToken(newToken) {
+    await saveConnection(connection.serverAddress, newToken);
+    setConnection((prev) => ({ ...prev, token: newToken }));
+    setTokenPromptVisible(false);
+  }
+
+  async function handleDismissTokenPrompt() {
+    await incrementTokenPromptDismissCount();
+    setTokenPromptVisible(false);
+  }
+
   if (!ready) {
     return <View style={[styles.blank, { backgroundColor: colors.background }]} />;
   }
 
   if (connection.serverAddress) {
     return (
-      <DashboardScreen
-        serverAddress={connection.serverAddress}
-        token={connection.token}
-        onLogout={handleLogout}
-        colors={colors}
-        theme={theme}
-        onToggleTheme={handleToggleTheme}
-      />
+      <>
+        <DashboardScreen
+          serverAddress={connection.serverAddress}
+          token={connection.token}
+          onLogout={handleLogout}
+          onSaveToken={handleSaveToken}
+          colors={colors}
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
+        />
+        <TokenPromptModal
+          visible={tokenPromptVisible}
+          colors={colors}
+          onSave={handleSaveToken}
+          onDismiss={handleDismissTokenPrompt}
+        />
+      </>
     );
   }
 

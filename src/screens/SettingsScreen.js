@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Alert,
   Linking,
@@ -6,6 +7,7 @@ import {
   StyleSheet,
   Switch,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -25,8 +27,40 @@ async function openLink(url) {
   Alert.alert('열 수 없습니다', '카카오톡 링크를 열 수 없습니다. 나중에 다시 시도해주세요.');
 }
 
-export default function SettingsScreen({ visible, colors, theme, onToggleTheme, onLogout, onClose }) {
+export default function SettingsScreen({
+  visible,
+  colors,
+  theme,
+  onToggleTheme,
+  token,
+  onSaveToken,
+  onLogout,
+  onClose,
+}) {
   const styles = createStyles(colors);
+  const [editingToken, setEditingToken] = useState(false);
+  const [tokenDraft, setTokenDraft] = useState('');
+
+  function handleStartEditToken() {
+    setTokenDraft('');
+    setEditingToken(true);
+  }
+
+  function handleCancelEditToken() {
+    setTokenDraft('');
+    setEditingToken(false);
+  }
+
+  function handleSaveTokenPress() {
+    const trimmed = tokenDraft.trim();
+    if (!trimmed) {
+      Alert.alert('토큰을 입력하세요', '빈 값은 저장할 수 없습니다.');
+      return;
+    }
+    onSaveToken(trimmed);
+    setTokenDraft('');
+    setEditingToken(false);
+  }
 
   function handleLogoutPress() {
     Alert.alert(
@@ -70,6 +104,52 @@ export default function SettingsScreen({ visible, colors, theme, onToggleTheme, 
                 trackColor={{ false: colors.border, true: colors.primary }}
                 thumbColor="#ffffff"
               />
+            </View>
+
+            <View style={styles.tokenSection}>
+              <Text style={styles.tokenLabel}>토큰</Text>
+              {editingToken ? (
+                <>
+                  <TextInput
+                    style={styles.tokenInput}
+                    placeholder="Long-Lived Access Token"
+                    placeholderTextColor={colors.textMuted}
+                    value={tokenDraft}
+                    onChangeText={setTokenDraft}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    secureTextEntry
+                    autoFocus
+                  />
+                  <View style={styles.tokenButtonRow}>
+                    <TouchableOpacity
+                      style={styles.tokenCancelButton}
+                      onPress={handleCancelEditToken}
+                      activeOpacity={0.85}
+                    >
+                      <Text style={styles.tokenCancelButtonText}>취소</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.tokenSaveButton}
+                      onPress={handleSaveTokenPress}
+                      activeOpacity={0.85}
+                    >
+                      <Text style={styles.tokenSaveButtonText}>저장</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <TouchableOpacity
+                  style={styles.tokenDisplayRow}
+                  onPress={handleStartEditToken}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.tokenValueText}>
+                    {token ? '••••••••' : '설정되지 않음'}
+                  </Text>
+                  <Text style={styles.tokenEditHint}>{token ? '변경' : '추가'}</Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             <TouchableOpacity
@@ -146,6 +226,75 @@ function createStyles(colors) {
       color: colors.text,
       fontSize: 15,
       fontWeight: '600',
+    },
+    tokenSection: {
+      backgroundColor: colors.background,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 14,
+      padding: 16,
+      marginBottom: 14,
+    },
+    tokenLabel: {
+      color: colors.textMuted,
+      fontSize: 13,
+      marginBottom: 8,
+    },
+    tokenDisplayRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    tokenValueText: {
+      color: colors.text,
+      fontSize: 15,
+      fontWeight: '600',
+    },
+    tokenEditHint: {
+      color: colors.primary,
+      fontSize: 13,
+      fontWeight: '700',
+    },
+    tokenInput: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      color: colors.text,
+      fontSize: 14,
+      marginBottom: 10,
+    },
+    tokenButtonRow: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    tokenCancelButton: {
+      flex: 1,
+      borderRadius: 999,
+      paddingVertical: 10,
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    tokenCancelButtonText: {
+      color: colors.textMuted,
+      fontWeight: '700',
+      fontSize: 13,
+    },
+    tokenSaveButton: {
+      flex: 1,
+      borderRadius: 999,
+      paddingVertical: 10,
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+    },
+    tokenSaveButtonText: {
+      color: '#0d1420',
+      fontWeight: '800',
+      fontSize: 13,
     },
     kakaoButton: {
       backgroundColor: '#FEE500',

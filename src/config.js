@@ -44,4 +44,5 @@ export const STORAGE_KEYS = {
   serverAddress: '@mj_server_address',
   token: '@mj_token',
   theme: '@mj_theme',
+  tokenPromptDismissCount: '@mj_token_prompt_dismiss_count',
 };
