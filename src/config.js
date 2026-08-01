@@ -1,6 +1,6 @@
 // Central place to tweak branding / target dashboard without hunting through screens.
 
-export const DARK_COLORS = {
+export const COLORS = {
   primary: '#2ECC9A',
   primaryDark: '#27AE96',
   background: '#0d1420',
@@ -9,23 +9,6 @@ export const DARK_COLORS = {
   text: '#e8eaed',
   textMuted: '#90a4c0',
 };
-
-export const LIGHT_COLORS = {
-  primary: '#2ECC9A',
-  primaryDark: '#27AE96',
-  background: '#f2f4f7',
-  surface: '#ffffff',
-  border: 'rgba(13,20,32,0.1)',
-  text: '#0d1420',
-  textMuted: '#5a6b85',
-};
-
-// Back-compat alias for any code that still imports the static dark palette directly.
-export const COLORS = DARK_COLORS;
-
-export function getColors(theme) {
-  return theme === 'light' ? LIGHT_COLORS : DARK_COLORS;
-}
 
 export const BRAND = {
   name: 'MJ tap&move',
@@ -43,6 +26,5 @@ export const KAKAO = {
 export const STORAGE_KEYS = {
   serverAddress: '@mj_server_address',
   token: '@mj_token',
-  theme: '@mj_theme',
   tokenPromptDismissCount: '@mj_token_prompt_dismiss_count',
 };

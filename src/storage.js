@@ -18,15 +18,6 @@ export async function clearConnection() {
   await AsyncStorage.multiRemove([STORAGE_KEYS.serverAddress, STORAGE_KEYS.token]);
 }
 
-export async function loadSavedTheme() {
-  const theme = await AsyncStorage.getItem(STORAGE_KEYS.theme);
-  return theme === 'light' ? 'light' : 'dark';
-}
-
-export async function saveTheme(theme) {
-  await AsyncStorage.setItem(STORAGE_KEYS.theme, theme);
-}
-
 // Policy: the token backfill prompt (see TokenPromptModal) re-appears on every launch
 // until the user either saves a token, or dismisses it twice — whichever comes first.
 // After 2 dismissals it stops appearing automatically; the token can still be added

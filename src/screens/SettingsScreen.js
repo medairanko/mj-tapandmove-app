@@ -5,7 +5,6 @@ import {
   Modal,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -27,16 +26,7 @@ async function openLink(url) {
   Alert.alert('열 수 없습니다', '카카오톡 링크를 열 수 없습니다. 나중에 다시 시도해주세요.');
 }
 
-export default function SettingsScreen({
-  visible,
-  colors,
-  theme,
-  onToggleTheme,
-  token,
-  onSaveToken,
-  onLogout,
-  onClose,
-}) {
+export default function SettingsScreen({ visible, colors, token, onSaveToken, onLogout, onClose }) {
   const styles = createStyles(colors);
   const [editingToken, setEditingToken] = useState(false);
   const [tokenDraft, setTokenDraft] = useState('');
@@ -93,18 +83,6 @@ export default function SettingsScreen({
             </View>
 
             <Text style={styles.brand}>{BRAND.name}</Text>
-
-            <View style={styles.row}>
-              <Text style={styles.rowLabel}>
-                {theme === 'light' ? '밝은 테마' : '어두운 테마'}
-              </Text>
-              <Switch
-                value={theme === 'light'}
-                onValueChange={onToggleTheme}
-                trackColor={{ false: colors.border, true: colors.primary }}
-                thumbColor="#ffffff"
-              />
-            </View>
 
             <View style={styles.tokenSection}>
               <Text style={styles.tokenLabel}>토큰</Text>
@@ -209,23 +187,6 @@ function createStyles(colors) {
       color: colors.textMuted,
       marginTop: 4,
       marginBottom: 24,
-    },
-    row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      backgroundColor: colors.background,
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: 14,
-      paddingHorizontal: 16,
-      paddingVertical: 14,
-      marginBottom: 14,
-    },
-    rowLabel: {
-      color: colors.text,
-      fontSize: 15,
-      fontWeight: '600',
     },
     tokenSection: {
       backgroundColor: colors.background,

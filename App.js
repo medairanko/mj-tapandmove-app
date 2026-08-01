@@ -1,13 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
-import { getColors } from './src/config';
+import { COLORS } from './src/config';
 import {
   loadSavedConnection,
   saveConnection,
   clearConnection,
-  loadSavedTheme,
-  saveTheme,
   shouldPromptForToken,
   incrementTokenPromptDismissCount,
 } from './src/storage';
@@ -20,20 +18,16 @@ SplashScreen.preventAutoHideAsync();
 export default function App() {
   const [ready, setReady] = useState(false);
   const [connection, setConnection] = useState({ serverAddress: null, token: null });
-  const [theme, setTheme] = useState('dark');
   const [tokenPromptVisible, setTokenPromptVisible] = useState(false);
-
-  const colors = useMemo(() => getColors(theme), [theme]);
 
   useEffect(() => {
     (async () => {
       try {
-        const [saved, savedTheme] = await Promise.all([loadSavedConnection(), loadSavedTheme()]);
+        const saved = await loadSavedConnection();
         if (saved.serverAddress) {
           setConnection(saved);
           setTokenPromptVisible(await shouldPromptForToken(saved.serverAddress, saved.token));
         }
-        setTheme(savedTheme);
       } finally {
         setReady(true);
       }
@@ -56,12 +50,6 @@ export default function App() {
     setConnection({ serverAddress: null, token: null });
   }
 
-  async function handleToggleTheme() {
-    const next = theme === 'light' ? 'dark' : 'light';
-    setTheme(next);
-    await saveTheme(next);
-  }
-
   async function handleSaveToken(newToken) {
     await saveConnection(connection.serverAddress, newToken);
     setConnection((prev) => ({ ...prev, token: newToken }));
@@ -74,7 +62,7 @@ export default function App() {
   }
 
   if (!ready) {
-    return <View style={[styles.blank, { backgroundColor: colors.background }]} />;
+    return <View style={[styles.blank, { backgroundColor: COLORS.background }]} />;
   }
 
   if (connection.serverAddress) {
@@ -85,13 +73,11 @@ export default function App() {
           token={connection.token}
           onLogout={handleLogout}
           onSaveToken={handleSaveToken}
-          colors={colors}
-          theme={theme}
-          onToggleTheme={handleToggleTheme}
+          colors={COLORS}
         />
         <TokenPromptModal
           visible={tokenPromptVisible}
-          colors={colors}
+          colors={COLORS}
           onSave={handleSaveToken}
           onDismiss={handleDismissTokenPrompt}
         />
@@ -104,7 +90,7 @@ export default function App() {
       onConnect={handleConnect}
       initialAddress={connection.serverAddress}
       initialToken={connection.token}
-      colors={colors}
+      colors={COLORS}
     />
   );
 }

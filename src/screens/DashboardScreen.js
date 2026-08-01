@@ -18,7 +18,7 @@ function buildDashboardUrl(rawAddress) {
   return `${getBaseUrl(rawAddress)}${DASHBOARD_PATH}`;
 }
 
-export default function DashboardScreen({ serverAddress, token, onLogout, onSaveToken, colors, theme, onToggleTheme }) {
+export default function DashboardScreen({ serverAddress, token, onLogout, onSaveToken, colors }) {
   const webviewRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
@@ -122,8 +122,6 @@ export default function DashboardScreen({ serverAddress, token, onLogout, onSave
       <SettingsScreen
         visible={settingsOpen}
         colors={colors}
-        theme={theme}
-        onToggleTheme={onToggleTheme}
         token={token}
         onSaveToken={onSaveToken}
         onLogout={onLogout}
