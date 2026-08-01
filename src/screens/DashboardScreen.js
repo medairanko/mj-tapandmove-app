@@ -12,7 +12,6 @@ import { WebView } from 'react-native-webview';
 import { DASHBOARD_PATH } from '../config';
 import { getBaseUrl } from '../../lib/haApi';
 import SettingsScreen from './SettingsScreen';
-import VoiceCommandButton from '../components/VoiceCommandButton';
 
 function buildDashboardUrl(rawAddress) {
   return `${getBaseUrl(rawAddress)}${DASHBOARD_PATH}`;
@@ -112,17 +111,12 @@ export default function DashboardScreen({ serverAddress, token, onLogout, onSave
         <Text style={styles.hamburgerIcon}>☰</Text>
       </TouchableOpacity>
 
-      <VoiceCommandButton
-        serverAddress={serverAddress}
-        token={token}
-        colors={colors}
-        refreshSignal={refreshTick}
-      />
-
       <SettingsScreen
         visible={settingsOpen}
         colors={colors}
+        serverAddress={serverAddress}
         token={token}
+        refreshSignal={refreshTick}
         onSaveToken={onSaveToken}
         onLogout={onLogout}
         onClose={() => setSettingsOpen(false)}

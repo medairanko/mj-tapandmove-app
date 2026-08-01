@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { BRAND, KAKAO } from '../config';
 import KakaoIcon from '../components/KakaoIcon';
+import VoiceCommandButton from '../components/VoiceCommandButton';
 
 async function openLink(url) {
   try {
@@ -26,7 +27,16 @@ async function openLink(url) {
   Alert.alert('열 수 없습니다', '카카오톡 링크를 열 수 없습니다. 나중에 다시 시도해주세요.');
 }
 
-export default function SettingsScreen({ visible, colors, token, onSaveToken, onLogout, onClose }) {
+export default function SettingsScreen({
+  visible,
+  colors,
+  serverAddress,
+  token,
+  refreshSignal,
+  onSaveToken,
+  onLogout,
+  onClose,
+}) {
   const styles = createStyles(colors);
   const [editingToken, setEditingToken] = useState(false);
   const [tokenDraft, setTokenDraft] = useState('');
@@ -128,6 +138,18 @@ export default function SettingsScreen({ visible, colors, token, onSaveToken, on
                   <Text style={styles.tokenEditHint}>{token ? '변경' : '추가'}</Text>
                 </TouchableOpacity>
               )}
+            </View>
+
+            <View style={styles.voiceSection}>
+              <Text style={styles.tokenLabel}>음성 명령</Text>
+              <View style={styles.voiceButtonWrap}>
+                <VoiceCommandButton
+                  serverAddress={serverAddress}
+                  token={token}
+                  colors={colors}
+                  refreshSignal={refreshSignal}
+                />
+              </View>
             </View>
 
             <TouchableOpacity
@@ -256,6 +278,22 @@ function createStyles(colors) {
       color: '#0d1420',
       fontWeight: '800',
       fontSize: 13,
+    },
+    voiceSection: {
+      backgroundColor: colors.background,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 14,
+      padding: 16,
+      marginBottom: 14,
+    },
+    // VoiceCommandButton positions its FAB/banner with `position: absolute`, so it
+    // contributes no layout height on its own -- this wrapper gives it a sized,
+    // relatively-positioned box to anchor against instead of floating over
+    // whatever ancestor happens to be positioned next.
+    voiceButtonWrap: {
+      height: 80,
+      position: 'relative',
     },
     kakaoButton: {
       backgroundColor: '#FEE500',
