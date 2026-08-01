@@ -5,17 +5,12 @@ import {
   useSpeechRecognitionEvent,
 } from 'expo-speech-recognition';
 import { getStates, callService } from '../../lib/haApi';
-import {
-  matchVoiceCommand,
-  normalize,
-  extractAction,
-  debugMatchCandidates,
-  getEligibleDomains,
-} from '../../lib/voiceIntent';
+import { matchVoiceCommand, traceVoiceCommand } from '../../lib/voiceIntent';
 
 const NO_SPEECH_TIMEOUT_MS = 5000;
 const MESSAGE_DISPLAY_MS = 1500;
 const RECOGNITION_LANG = 'ko-KR';
+const MAX_ALTERNATIVES = 5;
 
 // TEMPORARY diagnostics for the "always no match" issue — gated on __DEV__, not for production.
 const DEBUG_VOICE = __DEV__;
@@ -76,36 +71,32 @@ export function useVoiceCommand(serverAddress, token, refreshSignal) {
   }, []);
 
   const runCommand = useCallback(
-    async (recognizedText) => {
+    async (transcripts) => {
       if (DEBUG_VOICE) {
-        console.log('[voice][debug] raw recognized text:', recognizedText);
-        const normalized = normalize(recognizedText);
-        const extracted = extractAction(normalized);
-        console.log(
-          '[voice][debug] normalized:',
-          normalized,
-          '| extracted action:',
-          extracted?.action ?? '(none found)',
-          '| remainder used for entity matching:',
-          extracted?.remainder ?? '(n/a — no action keyword matched)'
-        );
+        console.log('[voice][debug] STT alternatives:', JSON.stringify(transcripts));
         console.log('[voice][debug] entities available to match against:', entitiesRef.current.length);
-        if (extracted) {
-          const eligibleDomains = getEligibleDomains(extracted.action);
-          const domainFiltered = entitiesRef.current.filter((entity) => eligibleDomains.includes(entity.domain));
-          console.log('[voice][debug] eligible domains for action', extracted.action, ':', eligibleDomains);
+        const trace = traceVoiceCommand(transcripts, entitiesRef.current);
+        trace.forEach((t, i) => {
           console.log(
-            '[voice][debug] candidate pool after domain filter:',
-            domainFiltered.length,
-            '/',
-            entitiesRef.current.length
+            `[voice][debug] alt[${i}] raw: "${t.transcript}" -> action: ${t.action ?? '(none found)'}` +
+              (t.action
+                ? ` -> stripped tokens: ${JSON.stringify(t.strippedTokens)} -> zone portion: "${t.zonePortion}"`
+                : ' (no action keyword matched, skipped)')
           );
-          const candidates = debugMatchCandidates(extracted.remainder, domainFiltered, 3);
-          console.log('[voice][debug] top 3 candidate matches (domain-filtered):', JSON.stringify(candidates, null, 2));
-        }
+          if (t.candidates.length) {
+            console.log(`[voice][debug] alt[${i}] top candidates:`, JSON.stringify(t.candidates, null, 2));
+          }
+        });
       }
 
-      const match = matchVoiceCommand(recognizedText, entitiesRef.current);
+      const match = matchVoiceCommand(transcripts, entitiesRef.current);
+
+      if (DEBUG_VOICE) {
+        console.log(
+          '[voice][debug] overall best match:',
+          match ? `${match.entity.friendly_name} (${match.entity.entity_id}) score=${match.score}` : '(none above threshold)'
+        );
+      }
 
       if (!match) {
         setState('recognized');
@@ -133,8 +124,11 @@ export function useVoiceCommand(serverAddress, token, refreshSignal) {
   useSpeechRecognitionEvent('result', (event) => {
     if (!event.isFinal) return;
     clearTimers();
-    const transcript = event.results?.[0]?.transcript?.trim();
-    if (!transcript) {
+    const transcripts = (event.results || [])
+      .map((result) => result?.transcript?.trim())
+      .filter(Boolean);
+    const topTranscript = transcripts[0];
+    if (!topTranscript) {
       if (DEBUG_VOICE) {
         console.log('[voice][debug] result event fired with empty/no transcript. Full event:', JSON.stringify(event));
       }
@@ -143,8 +137,8 @@ export function useVoiceCommand(serverAddress, token, refreshSignal) {
       return;
     }
     setState('recognized');
-    setMessage(DEBUG_VOICE ? `인식된 텍스트: ${transcript}` : transcript);
-    messageTimer.current = setTimeout(() => runCommand(transcript), MESSAGE_DISPLAY_MS);
+    setMessage(DEBUG_VOICE ? `인식된 텍스트: ${topTranscript}` : topTranscript);
+    messageTimer.current = setTimeout(() => runCommand(transcripts), MESSAGE_DISPLAY_MS);
   });
 
   useSpeechRecognitionEvent('error', (event) => {
@@ -206,6 +200,7 @@ export function useVoiceCommand(serverAddress, token, refreshSignal) {
       lang: RECOGNITION_LANG,
       interimResults: true,
       continuous: false,
+      maxAlternatives: MAX_ALTERNATIVES,
     });
 
     noSpeechTimer.current = setTimeout(() => {
