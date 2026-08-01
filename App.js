@@ -8,7 +8,10 @@ import {
   clearConnection,
   shouldPromptForToken,
   incrementTokenPromptDismissCount,
+  getUpdateDismissedDate,
+  setUpdateDismissedDate,
 } from './src/storage';
+import { checkForUpdate, getTodayDateString } from './lib/updateCheck';
 import LoginScreen from './src/screens/LoginScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
 import TokenPromptModal from './src/components/TokenPromptModal';
@@ -19,6 +22,11 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [connection, setConnection] = useState({ serverAddress: null, token: null });
   const [tokenPromptVisible, setTokenPromptVisible] = useState(false);
+  const [updateBanner, setUpdateBanner] = useState({
+    visible: false,
+    apkUrl: null,
+    releaseNotes: '',
+  });
 
   useEffect(() => {
     (async () => {
@@ -31,6 +39,22 @@ export default function App() {
       } finally {
         setReady(true);
       }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const result = await checkForUpdate();
+      if (!result.updateAvailable) return;
+
+      const dismissedDate = await getUpdateDismissedDate();
+      if (dismissedDate === getTodayDateString()) return;
+
+      setUpdateBanner({
+        visible: true,
+        apkUrl: result.apkUrl,
+        releaseNotes: result.releaseNotes,
+      });
     })();
   }, []);
 
@@ -61,6 +85,11 @@ export default function App() {
     setTokenPromptVisible(false);
   }
 
+  async function handleDismissUpdate() {
+    await setUpdateDismissedDate(getTodayDateString());
+    setUpdateBanner((prev) => ({ ...prev, visible: false }));
+  }
+
   if (!ready) {
     return <View style={[styles.blank, { backgroundColor: COLORS.background }]} />;
   }
@@ -74,6 +103,8 @@ export default function App() {
           onLogout={handleLogout}
           onSaveToken={handleSaveToken}
           colors={COLORS}
+          updateBanner={updateBanner}
+          onDismissUpdate={handleDismissUpdate}
         />
         <TokenPromptModal
           visible={tokenPromptVisible}

@@ -12,12 +12,21 @@ import { WebView } from 'react-native-webview';
 import { DASHBOARD_PATH } from '../config';
 import { getBaseUrl } from '../../lib/haApi';
 import SettingsScreen from './SettingsScreen';
+import UpdateBanner from '../components/UpdateBanner';
 
 function buildDashboardUrl(rawAddress) {
   return `${getBaseUrl(rawAddress)}${DASHBOARD_PATH}`;
 }
 
-export default function DashboardScreen({ serverAddress, token, onLogout, onSaveToken, colors }) {
+export default function DashboardScreen({
+  serverAddress,
+  token,
+  onLogout,
+  onSaveToken,
+  colors,
+  updateBanner = { visible: false, apkUrl: null, releaseNotes: '' },
+  onDismissUpdate,
+}) {
   const webviewRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
@@ -103,8 +112,17 @@ export default function DashboardScreen({ serverAddress, token, onLogout, onSave
         </View>
       )}
 
+      {updateBanner.visible && (
+        <UpdateBanner
+          apkUrl={updateBanner.apkUrl}
+          releaseNotes={updateBanner.releaseNotes}
+          colors={colors}
+          onDismiss={onDismissUpdate}
+        />
+      )}
+
       <TouchableOpacity
-        style={styles.hamburgerButton}
+        style={[styles.hamburgerButton, updateBanner.visible && styles.hamburgerButtonShifted]}
         onPress={() => setSettingsOpen(true)}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
@@ -183,6 +201,9 @@ function createStyles(colors) {
       color: '#e8eaed',
       fontSize: 20,
       fontWeight: '700',
+    },
+    hamburgerButtonShifted: {
+      top: 90,
     },
   });
 }

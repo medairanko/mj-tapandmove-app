@@ -39,3 +39,11 @@ export async function shouldPromptForToken(serverAddress, token) {
   const dismissals = await getTokenPromptDismissCount();
   return dismissals < MAX_TOKEN_PROMPT_DISMISSALS;
 }
+
+export async function getUpdateDismissedDate() {
+  return AsyncStorage.getItem(STORAGE_KEYS.updateDismissedDate);
+}
+
+export async function setUpdateDismissedDate(dateString) {
+  await AsyncStorage.setItem(STORAGE_KEYS.updateDismissedDate, dateString);
+}

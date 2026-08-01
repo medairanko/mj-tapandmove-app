@@ -27,4 +27,5 @@ export const STORAGE_KEYS = {
   serverAddress: '@mj_server_address',
   token: '@mj_token',
   tokenPromptDismissCount: '@mj_token_prompt_dismiss_count',
+  updateDismissedDate: '@mj_update_dismissed_date',
 };
