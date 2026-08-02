@@ -45,11 +45,28 @@ export default function App() {
   useEffect(() => {
     (async () => {
       const result = await checkForUpdate();
-      if (!result.updateAvailable) return;
-
       const dismissedDate = await getUpdateDismissedDate();
-      if (dismissedDate === getTodayDateString()) return;
+      const today = getTodayDateString();
 
+      if (__DEV__) {
+        console.log(
+          '[update][debug] updateAvailable:', result.updateAvailable,
+          '| dismissedDate:', dismissedDate,
+          '| today:', today
+        );
+      }
+
+      if (!result.updateAvailable) {
+        if (__DEV__) console.log('[update][debug] decision: no update available, banner stays hidden');
+        return;
+      }
+
+      if (dismissedDate === today) {
+        if (__DEV__) console.log('[update][debug] decision: already dismissed today, banner stays hidden');
+        return;
+      }
+
+      if (__DEV__) console.log('[update][debug] decision: showing update banner');
       setUpdateBanner({
         visible: true,
         apkUrl: result.apkUrl,
